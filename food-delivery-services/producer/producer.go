@@ -26,7 +26,7 @@ func (ep eventProducer) Produce(event events.Event) error {
 	}
 
 	msg := sarama.ProducerMessage{
-		Topic: event.GetName(),
+		Topic: event.GetTopicName(),
 		Value: sarama.ByteEncoder(value),
 	}
 

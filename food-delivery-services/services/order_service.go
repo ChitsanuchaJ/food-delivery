@@ -89,7 +89,7 @@ func (ordServ orderService) PlaceOrder(orderReq OrderRequest) (orderResp *OrderR
 		return nil, errors.New("payment failed")
 	}
 
-	fmt.Println("Publish event:", event.GetName())
+	fmt.Println("Publish event:", event.GetTopicName())
 	err = ordServ.eventProducer.Produce(event)
 	if err != nil {
 		return nil, err
