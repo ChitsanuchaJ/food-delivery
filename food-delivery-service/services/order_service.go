@@ -83,7 +83,7 @@ func (ordServ orderService) PlaceOrder(orderReq OrderRequest) (orderResp *OrderR
 	}
 
 	// Payment mock
-	err = Payment(totalPrice)
+	err = Payment(orderId, totalPrice)
 	if err != nil {
 		fmt.Println("payment failed")
 		return nil, errors.New("payment failed")

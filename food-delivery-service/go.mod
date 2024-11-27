@@ -1,4 +1,4 @@
-module food-delivery-services
+module food-delivery-service
 
 go 1.23.3
 

@@ -1,4 +1,4 @@
-module food-delivery-core-services
+module notification-service
 
 go 1.23.3
 
