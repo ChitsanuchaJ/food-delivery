@@ -2,10 +2,10 @@ package main
 
 import (
 	"fmt"
-	"food-delivery-services/handlers"
-	"food-delivery-services/producer"
-	"food-delivery-services/repositories"
-	"food-delivery-services/services"
+	"food-delivery-service/handlers"
+	"food-delivery-service/producer"
+	"food-delivery-service/repositories"
+	"food-delivery-service/services"
 
 	"github.com/IBM/sarama"
 	"github.com/go-redis/redis/v8"

@@ -1,8 +1,8 @@
 package handlers
 
 import (
-	"food-delivery-core-services/services"
 	"net/http"
+	"notification-service/services"
 
 	"github.com/labstack/echo"
 )

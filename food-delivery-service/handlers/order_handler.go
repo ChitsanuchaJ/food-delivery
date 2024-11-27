@@ -1,7 +1,7 @@
 package handlers
 
 import (
-	"food-delivery-services/services"
+	"food-delivery-service/services"
 
 	"net/http"
 

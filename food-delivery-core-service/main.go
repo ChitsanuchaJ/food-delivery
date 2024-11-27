@@ -3,9 +3,9 @@ package main
 import (
 	"context"
 	"events"
-	"food-delivery-core-services/consumer"
-	"food-delivery-core-services/handlers"
-	"food-delivery-core-services/services"
+	"notification-service/consumer"
+	"notification-service/handlers"
+	"notification-service/services"
 
 	"github.com/IBM/sarama"
 	"github.com/labstack/echo"

@@ -2,7 +2,7 @@ package handlers
 
 import (
 	"fmt"
-	"food-delivery-services/services"
+	"food-delivery-service/services"
 
 	"net/http"
 

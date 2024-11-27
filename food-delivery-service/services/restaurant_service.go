@@ -4,8 +4,8 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"food-delivery-services/consts"
-	"food-delivery-services/repositories"
+	"food-delivery-service/consts"
+	"food-delivery-service/repositories"
 
 	"github.com/go-redis/redis/v8"
 )
