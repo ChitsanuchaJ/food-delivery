@@ -3,43 +3,77 @@ package main
 import (
 	"context"
 	"events"
+	"fmt"
+	"log"
+	"net/http"
 	"notification-service/consumer"
 	"notification-service/handlers"
 	"notification-service/services"
+	"os"
+	"os/signal"
+	"time"
 
 	"github.com/IBM/sarama"
 	"github.com/labstack/echo"
+	"github.com/labstack/echo/middleware"
 )
 
 func main() {
-	orderCreatedConsumer := initConsumer(events.GROUP_ORDER_CREATED)
-	defer orderCreatedConsumer.Close()
-
 	notiService := services.NewNotificationService()
 	notiHandler := handlers.NewNotificationHandler(notiService)
 
-	eventHandler := consumer.NewEventHandler()
+	//////////////////////////////////////////////////////
+
+	orderCreatedConsumer := initConsumer(events.GROUP_ORDER_CREATE)
+	defer orderCreatedConsumer.Close()
+
+	orderAcceptedConsumer := initConsumer(events.GROUP_ORDER_ACCEPT)
+	defer orderAcceptedConsumer.Close()
+
+	orderPickedUpConsumer := initConsumer(events.GROUP_ORDER_PICK_UP)
+	defer orderPickedUpConsumer.Close()
+
+	orderDeliveredConsumer := initConsumer(events.GROUP_ORDER_DELIVERY)
+	defer orderDeliveredConsumer.Close()
+
+	eventHandler := consumer.NewEventHandler(notiService)
 	consumerHandler := consumer.NewConsumeHandler(eventHandler)
 
-	go comsumerListener(orderCreatedConsumer, consumerHandler)
+	// Order Service
+	go comsumerListener(events.TOPIC_ORDER_CREATE, orderCreatedConsumer, consumerHandler)
 
-	e := echo.New()
+	// go comsumerListener(events.TOPIC_ORDER_ACCEPT, orderAcceptedConsumer, consumerHandler)
+	// go comsumerListener(events.TOPIC_ORDER_PICK_UP, orderPickedUpConsumer, consumerHandler)
+	// go comsumerListener(events.TOPIC_ORDER_DELIVERY, orderDeliveredConsumer, consumerHandler)
 
-	e.POST("/notification/send", notiHandler.SendNotification)
+	app := echo.New()
+	app.Use(middleware.Recover())
+	app.Use(middleware.Logger())
 
-	e.Logger.Fatal(e.Start(":8001"))
+	app.POST("/notification/send", notiHandler.SendNotification)
+
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)
+	defer stop()
+
+	// Start server
+	go func() {
+		if err := app.Start(":8001"); err != nil && err != http.ErrServerClosed {
+			fmt.Println("shutting down the server")
+		}
+	}()
+
+	// Wait for interrupt signal to gracefully shut down the server with a timeout of 10 seconds.
+	<-ctx.Done()
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	if err := app.Shutdown(ctx); err != nil {
+		log.Fatal(err)
+	}
 }
 
-func comsumerListener(consumerGroup sarama.ConsumerGroup, handler sarama.ConsumerGroupHandler) {
-	topics := []string{
-		events.TOPIC_ORDER_CREATED,
-		events.TOPIC_ORDER_ACCEPTED,
-		events.TOPIC_ORDER_PICKED_UP,
-		events.TOPIC_ORDER_DELIVERED,
-	}
-
+func comsumerListener(topic string, consumerGroup sarama.ConsumerGroup, handler sarama.ConsumerGroupHandler) {
 	for {
-		consumerGroup.Consume(context.Background(), topics, handler)
+		consumerGroup.Consume(context.Background(), []string{topic}, handler)
 	}
 }
 

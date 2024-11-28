@@ -4,31 +4,41 @@ import (
 	"encoding/json"
 	"events"
 	"fmt"
+	"notification-service/services"
 )
 
 type EventHandler interface {
 	Handle(string, []byte)
 }
 
-type eventHandler struct{}
+type eventHandler struct {
+	notiService services.NotificationService
+}
 
-func NewEventHandler() EventHandler {
-	return eventHandler{}
+func NewEventHandler(notiService services.NotificationService) EventHandler {
+	return eventHandler{notiService}
 }
 
 func (e eventHandler) Handle(topic string, eventBytes []byte) {
 	switch topic {
-	case events.TOPIC_ORDER_CREATED:
+	case events.TOPIC_ORDER_CREATE:
 		event := &events.OrderCreate{}
 		err := json.Unmarshal(eventBytes, event)
 		if err != nil {
 			fmt.Println(err)
 			return
 		}
-		fmt.Println("@@@ eventBytes =>", eventBytes)
-		fmt.Println("@@@ event =>", event)
-		// Do something
-	case events.TOPIC_ORDER_ACCEPTED:
+		fmt.Println("Event Log =>", event)
+		fmt.Println("")
+
+		notiReq := services.NotificationRequest{
+			Recipient: events.RECIPIENT_RESTAURANT,
+			OrderID:   event.OrderId,
+			Message:   event.OptField.Message,
+		}
+		e.notiService.SendNotification(notiReq)
+
+	case events.TOPIC_ORDER_ACCEPT:
 		event := &events.OrderAccept{}
 		err := json.Unmarshal(eventBytes, event)
 		if err != nil {
@@ -36,7 +46,8 @@ func (e eventHandler) Handle(topic string, eventBytes []byte) {
 			return
 		}
 		// Do something
-	case events.TOPIC_ORDER_PICKED_UP:
+
+	case events.TOPIC_ORDER_PICK_UP:
 		event := &events.OrderPickUp{}
 		err := json.Unmarshal(eventBytes, event)
 		if err != nil {
@@ -44,7 +55,8 @@ func (e eventHandler) Handle(topic string, eventBytes []byte) {
 			return
 		}
 		// Do something
-	case events.TOPIC_ORDER_DELIVERED:
+
+	case events.TOPIC_ORDER_DELIVERY:
 		event := &events.OrderDelivery{}
 		err := json.Unmarshal(eventBytes, event)
 		if err != nil {
@@ -52,6 +64,8 @@ func (e eventHandler) Handle(topic string, eventBytes []byte) {
 			return
 		}
 		// Do something
-	}
 
+	default:
+		fmt.Print("Invalid topic.")
+	}
 }

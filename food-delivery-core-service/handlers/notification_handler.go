@@ -22,7 +22,7 @@ func (h notificationHandler) SendNotification(c echo.Context) error {
 		return c.NoContent(http.StatusBadRequest)
 	}
 
-	notiResp, err := h.notiService.SendNotification(&notiReq)
+	notiResp, err := h.notiService.SendNotification(notiReq)
 	if err != nil {
 		return c.NoContent(http.StatusInternalServerError)
 	}

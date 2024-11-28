@@ -1,15 +1,15 @@
 package events
 
 const (
-	TOPIC_ORDER_CREATED   = "order_created"
-	TOPIC_ORDER_ACCEPTED  = "order_accepted"
-	TOPIC_ORDER_PICKED_UP = "order_picked_up"
-	TOPIC_ORDER_DELIVERED = "order_delivered"
+	TOPIC_ORDER_CREATE   = "order_created"
+	TOPIC_ORDER_ACCEPT   = "order_accepted"
+	TOPIC_ORDER_PICK_UP  = "order_picked_up"
+	TOPIC_ORDER_DELIVERY = "order_delivered"
 
-	GROUP_ORDER_CREATED   = "order_created_group"
-	GROUP_ORDER_ACCEPTED  = "order_accepted_group"
-	GROUP_ORDER_PICKED_UP = "order_picked_up_group"
-	GROUP_ORDER_DELIVERED = "order_delivered_group"
+	GROUP_ORDER_CREATE   = "order_create_group"
+	GROUP_ORDER_ACCEPT   = "order_accept_group"
+	GROUP_ORDER_PICK_UP  = "order_pick_up_group"
+	GROUP_ORDER_DELIVERY = "order_delivery_group"
 
 	ORDER_STATUS_CREATED   = "created"
 	ORDER_STATUS_ACCEPTED  = "accepted"
@@ -27,12 +27,17 @@ type Event interface {
 	// GetConsumerGroupName() string
 }
 
+type OptionalField struct {
+	Message string
+}
+
 //////////////////////////////////////////////////////
 
 type OrderCreate struct {
 	OrderId      string
 	RestaurantId string
 	Items        []Item
+	OptField     OptionalField
 }
 
 type Item struct {
@@ -41,7 +46,7 @@ type Item struct {
 }
 
 func (obj OrderCreate) GetTopicName() string {
-	return TOPIC_ORDER_CREATED
+	return TOPIC_ORDER_CREATE
 }
 
 // func (obj OrderCreate) GetConsumerGroupName() string {
@@ -51,11 +56,12 @@ func (obj OrderCreate) GetTopicName() string {
 //////////////////////////////////////////////////////
 
 type OrderAccept struct {
-	OrderId string
+	OrderId  string
+	OptField OptionalField
 }
 
 func (obj OrderAccept) GetTopicName() string {
-	return TOPIC_ORDER_ACCEPTED
+	return TOPIC_ORDER_ACCEPT
 }
 
 // func (obj OrderAccept) GetConsumerGroupName() string {
@@ -65,12 +71,13 @@ func (obj OrderAccept) GetTopicName() string {
 //////////////////////////////////////////////////////
 
 type OrderPickUp struct {
-	OrderId string
-	RiderId string
+	OrderId  string
+	RiderId  string
+	OptField OptionalField
 }
 
 func (obj OrderPickUp) GetTopicName() string {
-	return TOPIC_ORDER_PICKED_UP
+	return TOPIC_ORDER_PICK_UP
 }
 
 // func (obj OrderPickUp) GetConsumerGroupName() string {
@@ -80,12 +87,13 @@ func (obj OrderPickUp) GetTopicName() string {
 //////////////////////////////////////////////////////
 
 type OrderDelivery struct {
-	OrderId string
-	RiderId string
+	OrderId  string
+	RiderId  string
+	OptField OptionalField
 }
 
 func (obj OrderDelivery) GetTopicName() string {
-	return TOPIC_ORDER_DELIVERED
+	return TOPIC_ORDER_DELIVERY
 }
 
 // func (obj OrderDelivery) GetConsumerGroupName() string {

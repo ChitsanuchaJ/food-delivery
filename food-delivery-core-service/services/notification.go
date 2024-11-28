@@ -11,5 +11,5 @@ type NotificationResponse struct {
 }
 
 type NotificationService interface {
-	SendNotification(*NotificationRequest) (*NotificationResponse, error)
+	SendNotification(NotificationRequest) (*NotificationResponse, error)
 }

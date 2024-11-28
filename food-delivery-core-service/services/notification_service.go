@@ -8,10 +8,16 @@ func NewNotificationService() NotificationService {
 	return notificationService{}
 }
 
-func (s notificationService) SendNotification(notiReq *NotificationRequest) (notiResp *NotificationResponse, err error) {
+func (s notificationService) SendNotification(notiReq NotificationRequest) (notiResp *NotificationResponse, err error) {
 
+	notiResp = &NotificationResponse{
+		Status: "sent",
+	}
 	// Log logic
-	fmt.Println("Log from send notification ")
+	fmt.Println("Log from notification ")
+	fmt.Println("--------------------------------------------------------")
+	fmt.Println(notiReq.Message)
+	fmt.Println("--------------------------------------------------------")
 
-	return nil, nil
+	return notiResp, nil
 }
