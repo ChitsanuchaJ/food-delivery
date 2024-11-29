@@ -15,7 +15,6 @@ func NewRiderService(eventProducer producer.EventProducer) RiderService {
 }
 
 func (s riderService) PickUpOrder(pickUpOrderReq PickUpOrderRequest) (pickUpOrderResp *PickUpOrderResponse, err error) {
-
 	fmt.Println("CORE - PickUpOrderRequest:", pickUpOrderReq)
 
 	msg := fmt.Sprintf("OrderID: %v \"pick up\"", pickUpOrderReq.OrderID)
@@ -41,4 +40,32 @@ func (s riderService) PickUpOrder(pickUpOrderReq PickUpOrderRequest) (pickUpOrde
 	}
 
 	return pickUpOrderResp, nil
+}
+
+func (s riderService) DeliverOrder(deliverOrderReq DeliverOrderRequest) (deliverOrderResp *DeliverOrderResponse, err error) {
+	fmt.Println("CORE - DeliverOrderRequest:", deliverOrderReq)
+
+	msg := fmt.Sprintf("OrderID: %v \"delivered\"", deliverOrderReq.OrderID)
+	fmt.Println(msg)
+	fmt.Println("")
+
+	event := events.OrderDelivery{
+		RiderId:  deliverOrderReq.RiderID,
+		OrderId:  deliverOrderReq.OrderID,
+		OptField: events.OptionalField{Message: msg},
+	}
+
+	fmt.Println("Publish event:", event.GetTopicName())
+	fmt.Println("")
+
+	err = s.eventProducer.Produce(event)
+	if err != nil {
+		return nil, err
+	}
+
+	deliverOrderResp = &DeliverOrderResponse{
+		Status: events.ORDER_STATUS_DELIVERED,
+	}
+
+	return deliverOrderResp, nil
 }

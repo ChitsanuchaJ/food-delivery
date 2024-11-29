@@ -34,3 +34,21 @@ func (h riderHandler) PickUpOrder(c echo.Context) error {
 
 	return c.JSON(http.StatusOK, pickUpOrderResp)
 }
+
+func (h riderHandler) DeliverOrder(c echo.Context) error {
+	fmt.Println("CORE - Deliver order called")
+
+	deliverOrderReq := services.DeliverOrderRequest{}
+
+	if err := c.Bind(&deliverOrderReq); err != nil {
+		return c.NoContent(http.StatusBadRequest)
+	}
+
+	deliverOrderResp, err := h.riderService.DeliverOrder(deliverOrderReq)
+
+	if err != nil {
+		return c.NoContent(http.StatusInternalServerError)
+	}
+
+	return c.JSON(http.StatusOK, deliverOrderResp)
+}

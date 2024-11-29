@@ -54,6 +54,7 @@ func main() {
 
 	app.GET("/rider", riderHandler.GetRiders)
 	app.POST("/rider/order/pickup", riderHandler.PickUpOrder)
+	app.POST("/rider/order/deliver", riderHandler.DeliverOrder)
 
 	app.GET("/menu/:id", menuHandler.GetMenusByID)
 	app.POST("/order", orderHandler.PlaceOrder)

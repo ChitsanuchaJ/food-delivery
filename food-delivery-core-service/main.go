@@ -57,7 +57,7 @@ func main() {
 
 	// Act like Notification Service
 	go comsumerListener(events.TOPIC_ORDER_PICK_UP, orderPickedUpConsumer, consumerHandler)
-	// go comsumerListener(events.TOPIC_ORDER_DELIVERY, orderDeliveredConsumer, consumerHandler)
+	go comsumerListener(events.TOPIC_ORDER_DELIVERY, orderDeliveredConsumer, consumerHandler)
 
 	//////////////////////////////////////////////////////
 
@@ -68,6 +68,7 @@ func main() {
 	app.POST("/notification/send", notiHandler.SendNotification)
 	app.POST("/restaurant/order/accept", restaurantHandler.AcceptOrder)
 	app.POST("/rider/order/pickup", riderHandler.PickUpOrder)
+	app.POST("/rider/order/deliver", riderHandler.DeliverOrder)
 
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)
 	defer stop()

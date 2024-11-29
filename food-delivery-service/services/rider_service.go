@@ -56,7 +56,6 @@ func (s riderService) GetRiders() (riderWrapper *RiderWrapper, err error) {
 }
 
 func (s riderService) PickUpOrder(pickUpOrderReq PickUpOrderRequest) (pickUpOrderResp *PickUpOrderResponse, err error) {
-
 	fmt.Println("PickUpOrderRequest:", pickUpOrderReq)
 
 	_, err = utils.GetRestyClient().R().
@@ -70,4 +69,20 @@ func (s riderService) PickUpOrder(pickUpOrderReq PickUpOrderRequest) (pickUpOrde
 	}
 
 	return pickUpOrderResp, nil
+}
+
+func (s riderService) DeliverOrder(deliverOrderReq DeliverOrderRequest) (deliverOrderResp *DeliverOrderResponse, err error) {
+	fmt.Println("DeliverOrderRequest:", deliverOrderReq)
+
+	_, err = utils.GetRestyClient().R().
+		SetBody(deliverOrderReq).
+		SetResult(&deliverOrderResp).
+		Post("/rider/order/deliver")
+
+	if err != nil {
+		fmt.Printf("request failed: %v", err)
+		return nil, fmt.Errorf("request failed: %w", err)
+	}
+
+	return deliverOrderResp, nil
 }
