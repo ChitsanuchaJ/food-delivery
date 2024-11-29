@@ -17,7 +17,7 @@ func NewRiderService(eventProducer producer.EventProducer) RiderService {
 func (s riderService) PickUpOrder(pickUpOrderReq PickUpOrderRequest) (pickUpOrderResp *PickUpOrderResponse, err error) {
 	fmt.Println("CORE - PickUpOrderRequest:", pickUpOrderReq)
 
-	msg := fmt.Sprintf("OrderID: %v \"pick up\"", pickUpOrderReq.OrderID)
+	msg := fmt.Sprintf("OrderID: %v \"picked up\"", pickUpOrderReq.OrderID)
 	fmt.Println(msg)
 	fmt.Println("")
 
