@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"fmt"
 	"food-delivery-service/services"
 
 	"net/http"
@@ -17,6 +18,8 @@ func NewOrderHandler(orderService services.OrderService) OrderHandler {
 }
 
 func (h orderHandler) PlaceOrder(c echo.Context) error {
+	fmt.Println("Place order called")
+
 	orderReq := services.OrderRequest{}
 
 	if err := c.Bind(&orderReq); err != nil {

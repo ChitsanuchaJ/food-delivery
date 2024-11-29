@@ -43,6 +43,9 @@ func main() {
 	restaurantService := services.NewRestaurantService(eventProducer)
 	restaurantHandler := handlers.NewRestaurantHandler(restaurantService)
 
+	riderService := services.NewRiderService(eventProducer)
+	riderHandler := handlers.NewRiderHandler(riderService)
+
 	eventHandler := consumer.NewEventHandler(notiService)
 	consumerHandler := consumer.NewConsumeHandler(eventHandler)
 
@@ -51,17 +54,20 @@ func main() {
 
 	// Act like Rider Service
 	go comsumerListener(events.TOPIC_ORDER_ACCEPT, orderAcceptedConsumer, consumerHandler)
-	// go comsumerListener(events.TOPIC_ORDER_PICK_UP, orderPickedUpConsumer, consumerHandler)
+
+	// Act like Notification Service
+	go comsumerListener(events.TOPIC_ORDER_PICK_UP, orderPickedUpConsumer, consumerHandler)
 	// go comsumerListener(events.TOPIC_ORDER_DELIVERY, orderDeliveredConsumer, consumerHandler)
 
 	//////////////////////////////////////////////////////
 
 	app := echo.New()
 	app.Use(middleware.Recover())
-	app.Use(middleware.Logger())
+	// app.Use(middleware.Logger())
 
 	app.POST("/notification/send", notiHandler.SendNotification)
 	app.POST("/restaurant/order/accept", restaurantHandler.AcceptOrder)
+	app.POST("/rider/order/pickup", riderHandler.PickUpOrder)
 
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)
 	defer stop()

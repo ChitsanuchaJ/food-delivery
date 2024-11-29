@@ -1,16 +1,5 @@
 package services
 
-type RiderWrapper struct {
-	Riders []Rider `json:"rider"`
-}
-
-type Rider struct {
-	ID   string `json:"id"`
-	Name string `json:"name"`
-}
-
-//////////////////////////////////////////////////////
-
 type PickUpOrderRequest struct {
 	OrderID string `json:"order_id"`
 	RiderID string `json:"rider_id"`
@@ -21,6 +10,5 @@ type PickUpOrderResponse struct {
 }
 
 type RiderService interface {
-	GetRiders() (*RiderWrapper, error)
 	PickUpOrder(PickUpOrderRequest) (*PickUpOrderResponse, error)
 }

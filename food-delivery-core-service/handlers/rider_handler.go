@@ -2,7 +2,7 @@ package handlers
 
 import (
 	"fmt"
-	"food-delivery-service/services"
+	"notification-service/services"
 
 	"net/http"
 
@@ -17,19 +17,8 @@ func NewRiderHandler(riderService services.RiderService) RiderHandler {
 	return riderHandler{riderService}
 }
 
-func (h riderHandler) GetRiders(c echo.Context) error {
-	fmt.Println("View rider called")
-
-	riders, err := h.riderService.GetRiders()
-	if err != nil {
-		return c.NoContent(http.StatusInternalServerError)
-	}
-
-	return c.JSON(http.StatusOK, riders)
-}
-
 func (h riderHandler) PickUpOrder(c echo.Context) error {
-	fmt.Println("Pick up order called")
+	fmt.Println("CORE - Pick up order called")
 
 	pickUpOrderReq := services.PickUpOrderRequest{}
 

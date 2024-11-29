@@ -16,7 +16,7 @@ func (s notificationService) SendNotification(notiReq NotificationRequest) (noti
 	// Log logic
 	fmt.Println("Log from notification ")
 	fmt.Println("--------------------------------------------------------")
-	fmt.Println("To:", notiReq.Recipient, ":", notiReq.Message)
+	fmt.Printf("To: %v, %v\n", notiReq.Recipient, notiReq.Message)
 	fmt.Println("--------------------------------------------------------")
 
 	return notiResp, nil

@@ -62,7 +62,15 @@ func (e eventHandler) Handle(topic string, eventBytes []byte) {
 			fmt.Println(err)
 			return
 		}
-		// Do something
+		fmt.Println("Consume topic", events.TOPIC_ORDER_PICK_UP, "log =>", event)
+		fmt.Println("")
+
+		notiReq := services.NotificationRequest{
+			Recipient: events.RECIPIENT_CUSTOMER,
+			OrderID:   event.OrderId,
+			Message:   event.OptField.Message,
+		}
+		e.notiService.SendNotification(notiReq)
 
 	case events.TOPIC_ORDER_DELIVERY:
 		event := &events.OrderDelivery{}

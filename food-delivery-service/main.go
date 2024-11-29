@@ -9,6 +9,7 @@ import (
 	"food-delivery-service/utils"
 
 	"github.com/labstack/echo"
+	"github.com/labstack/echo/middleware"
 )
 
 func main() {
@@ -45,11 +46,15 @@ func main() {
 	orderHandler := handlers.NewOrderHandler(orderService)
 
 	app := echo.New()
+	app.Use(middleware.Recover())
+	// app.Use(middleware.Logger())
 
 	app.GET("/restaurant", restaurantHandler.GetRestaurants)
 	app.POST("/restaurant/order/accept", restaurantHandler.AcceptOrder)
 
 	app.GET("/rider", riderHandler.GetRiders)
+	app.POST("/rider/order/pickup", riderHandler.PickUpOrder)
+
 	app.GET("/menu/:id", menuHandler.GetMenusByID)
 	app.POST("/order", orderHandler.PlaceOrder)
 

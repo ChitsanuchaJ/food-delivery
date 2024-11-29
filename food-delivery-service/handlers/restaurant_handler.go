@@ -19,7 +19,7 @@ func NewRestaurantHandler(restaurantService services.RestaurantService) Restaura
 
 func (h restaurantHandler) GetRestaurants(c echo.Context) error {
 
-	fmt.Println("view restaurant called")
+	fmt.Println("View restaurant called")
 
 	restaurants, err := h.restaurantService.GetRestaurants()
 	if err != nil {

@@ -75,6 +75,7 @@ func (s restaurantService) AcceptOrder(acceptOrderReq AcceptOrderRequest) (accep
 		Post("/restaurant/order/accept")
 
 	if err != nil {
+		fmt.Printf("request failed: %v", err)
 		return nil, fmt.Errorf("request failed: %w", err)
 	}
 

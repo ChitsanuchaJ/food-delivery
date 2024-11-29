@@ -54,3 +54,20 @@ func (s riderService) GetRiders() (riderWrapper *RiderWrapper, err error) {
 
 	return &riderWrapperDB, nil
 }
+
+func (s riderService) PickUpOrder(pickUpOrderReq PickUpOrderRequest) (pickUpOrderResp *PickUpOrderResponse, err error) {
+
+	fmt.Println("PickUpOrderRequest:", pickUpOrderReq)
+
+	_, err = utils.GetRestyClient().R().
+		SetBody(pickUpOrderReq).
+		SetResult(&pickUpOrderResp).
+		Post("/rider/order/pickup")
+
+	if err != nil {
+		fmt.Printf("request failed: %v", err)
+		return nil, fmt.Errorf("request failed: %w", err)
+	}
+
+	return pickUpOrderResp, nil
+}

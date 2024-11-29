@@ -18,8 +18,7 @@ func NewMenuHandler(menuService services.MenuService) MenuHandler {
 }
 
 func (h menuHandler) GetMenusByID(c echo.Context) error {
-
-	fmt.Println("view menu called")
+	fmt.Println("View menu called")
 
 	restaurantId := c.Param("id")
 
