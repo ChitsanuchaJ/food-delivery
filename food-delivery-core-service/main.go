@@ -8,7 +8,9 @@ import (
 	"net/http"
 	"notification-service/consumer"
 	"notification-service/handlers"
+	"notification-service/producer"
 	"notification-service/services"
+	"notification-service/utils"
 	"os"
 	"os/signal"
 	"time"
@@ -19,10 +21,9 @@ import (
 )
 
 func main() {
-	notiService := services.NewNotificationService()
-	notiHandler := handlers.NewNotificationHandler(notiService)
-
-	//////////////////////////////////////////////////////
+	kafkaProducer := utils.InitProducer()
+	defer kafkaProducer.Close()
+	eventProducer := producer.NewEventProducer(kafkaProducer)
 
 	orderCreatedConsumer := initConsumer(events.GROUP_ORDER_CREATE)
 	defer orderCreatedConsumer.Close()
@@ -36,21 +37,31 @@ func main() {
 	orderDeliveredConsumer := initConsumer(events.GROUP_ORDER_DELIVERY)
 	defer orderDeliveredConsumer.Close()
 
+	notiService := services.NewNotificationService()
+	notiHandler := handlers.NewNotificationHandler(notiService)
+
+	restaurantService := services.NewRestaurantService(eventProducer)
+	restaurantHandler := handlers.NewRestaurantHandler(restaurantService)
+
 	eventHandler := consumer.NewEventHandler(notiService)
 	consumerHandler := consumer.NewConsumeHandler(eventHandler)
 
-	// Order Service
+	// Act like Order Service
 	go comsumerListener(events.TOPIC_ORDER_CREATE, orderCreatedConsumer, consumerHandler)
 
-	// go comsumerListener(events.TOPIC_ORDER_ACCEPT, orderAcceptedConsumer, consumerHandler)
+	// Act like Rider Service
+	go comsumerListener(events.TOPIC_ORDER_ACCEPT, orderAcceptedConsumer, consumerHandler)
 	// go comsumerListener(events.TOPIC_ORDER_PICK_UP, orderPickedUpConsumer, consumerHandler)
 	// go comsumerListener(events.TOPIC_ORDER_DELIVERY, orderDeliveredConsumer, consumerHandler)
+
+	//////////////////////////////////////////////////////
 
 	app := echo.New()
 	app.Use(middleware.Recover())
 	app.Use(middleware.Logger())
 
 	app.POST("/notification/send", notiHandler.SendNotification)
+	app.POST("/restaurant/order/accept", restaurantHandler.AcceptOrder)
 
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)
 	defer stop()

@@ -6,24 +6,23 @@ import (
 	"fmt"
 	"food-delivery-service/consts"
 	"food-delivery-service/repositories"
-
-	"github.com/go-redis/redis/v8"
+	"food-delivery-service/utils"
 )
 
 type riderService struct {
-	riderRepo   repositories.RiderRepository
-	redisClient *redis.Client
+	riderRepo repositories.RiderRepository
 }
 
-func NewRiderService(riderRepo repositories.RiderRepository, redisClient *redis.Client) RiderService {
-	return riderService{riderRepo, redisClient}
+func NewRiderService(riderRepo repositories.RiderRepository) RiderService {
+	return riderService{riderRepo}
 }
 
 func (s riderService) GetRiders() (riderWrapper *RiderWrapper, err error) {
 	key := "service::GetRiders"
+	redisClient := utils.GetRedisClient()
 
 	// Redis Get
-	if riderJson, err := s.redisClient.Get(context.Background(), key).Result(); err == nil {
+	if riderJson, err := redisClient.Get(context.Background(), key).Result(); err == nil {
 		if json.Unmarshal([]byte(riderJson), &riderWrapper) == nil {
 			// fmt.Println("Cache hit from redis at service - GetRiders()", riderWrapper)
 			fmt.Println("view rider from cached")
@@ -47,7 +46,7 @@ func (s riderService) GetRiders() (riderWrapper *RiderWrapper, err error) {
 
 	// Redis SET
 	if data, err := json.Marshal(riderWrapperDB); err == nil {
-		s.redisClient.Set(context.Background(), key, string(data), consts.CACHE_TIME)
+		redisClient.Set(context.Background(), key, string(data), consts.CACHE_TIME)
 	}
 
 	// fmt.Println("Query from database at service - GetRiders()", riderWrapperDB)

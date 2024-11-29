@@ -13,5 +13,5 @@ type Menu struct {
 }
 
 type MenuService interface {
-	GetMenus(string) (*MenuWrapper, error)
+	GetMenu(string) (*MenuWrapper, error)
 }

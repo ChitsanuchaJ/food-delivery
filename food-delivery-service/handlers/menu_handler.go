@@ -23,7 +23,7 @@ func (h menuHandler) GetMenusByID(c echo.Context) error {
 
 	restaurantId := c.Param("id")
 
-	menus, err := h.menuService.GetMenus(restaurantId)
+	menus, err := h.menuService.GetMenu(restaurantId)
 	if err != nil {
 		return c.NoContent(http.StatusInternalServerError)
 	}

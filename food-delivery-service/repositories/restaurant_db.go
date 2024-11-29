@@ -25,3 +25,14 @@ func (r restaurantRepositoryRedis) GetRestaurants() (restaurants []restaurant, e
 	fmt.Println("Query from database at repository - GetRestaurants()")
 	return restaurants, nil
 }
+
+func (r restaurantRepositoryRedis) GetRestaurantByID(id string) (restaurant *restaurant, err error) {
+	err = r.db.First(&restaurant, id).Error
+	if err != nil {
+		fmt.Println("Data not found, id:", id, "is not existing.")
+		return nil, err
+	}
+
+	fmt.Println("Query from database at repository - GetRestaurantByID() id:", id)
+	return restaurant, nil
+}

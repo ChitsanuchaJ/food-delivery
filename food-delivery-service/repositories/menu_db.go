@@ -11,17 +11,17 @@ type menuRepositoryRedis struct {
 }
 
 func NewMenuRepositoryRedis(db *gorm.DB) MenuRepository {
-	db.AutoMigrate(&menu{})
+	db.AutoMigrate(&Menu{})
 	mockMenuData(db)
 	return menuRepositoryRedis{db}
 }
 
-func (r menuRepositoryRedis) GetMenus(restaurantId string) (menus []menu, err error) {
+func (r menuRepositoryRedis) GetMenu(restaurantId string) (menus []Menu, err error) {
 	err = r.db.Where("restaurant_id = ?", restaurantId).Find(&menus).Error
 	if err != nil {
 		return nil, err
 	}
 
-	fmt.Println("Query from database at repository - GetMenus()")
+	fmt.Println("Query from database at repository - GetMenu()")
 	return menus, nil
 }

@@ -11,6 +11,7 @@ type restaurant struct {
 
 type RestaurantRepository interface {
 	GetRestaurants() ([]restaurant, error)
+	GetRestaurantByID(id string) (*restaurant, error)
 }
 
 func mockRestaurantData(db *gorm.DB) error {

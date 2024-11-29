@@ -6,35 +6,37 @@ import (
 	"fmt"
 	"food-delivery-service/consts"
 	"food-delivery-service/repositories"
-
-	"github.com/go-redis/redis/v8"
+	"food-delivery-service/utils"
 )
 
 type menuService struct {
-	menuRepo    repositories.MenuRepository
-	redisClient *redis.Client
+	menuRepo repositories.MenuRepository
 }
 
-func NewMenuService(menuRepo repositories.MenuRepository, redisClient *redis.Client) MenuService {
-	return menuService{menuRepo, redisClient}
+func NewMenuService(menuRepo repositories.MenuRepository) MenuService {
+	return menuService{menuRepo}
 }
 
-func (s menuService) GetMenus(restaurantId string) (menuWrapper *MenuWrapper, err error) {
-	key := fmt.Sprintf("service::GetMenus::restaurantId::%v", restaurantId)
+func (s menuService) GetMenu(restaurantId string) (menuWrapper *MenuWrapper, err error) {
+	key := fmt.Sprintf("service::GetMenu::restaurantId::%v", restaurantId)
+	redisClient := utils.GetRedisClient()
 
 	// Redis Get
-	if menuJson, err := s.redisClient.Get(context.Background(), key).Result(); err == nil {
+	if menuJson, err := redisClient.Get(context.Background(), key).Result(); err == nil {
 		if json.Unmarshal([]byte(menuJson), &menuWrapper) == nil {
-			// fmt.Println("Cache hit from redis at service - GetMenus()", menuWrapper)
+			// fmt.Println("Cache hit from redis at service - GetMenu()", menuWrapper)
 			fmt.Println("view menu from cached")
 			return menuWrapper, nil
 		}
 	}
 
-	menusData, err := s.menuRepo.GetMenus(restaurantId)
+	menusData, err := s.menuRepo.GetMenu(restaurantId)
 	if err != nil {
 		return nil, err
 	}
+	// if len(menusData) == 0 {
+	// 	return nil, errors.New("data not found")
+	// }
 
 	menus := []Menu{}
 	for _, menu := range menusData {
@@ -52,10 +54,10 @@ func (s menuService) GetMenus(restaurantId string) (menuWrapper *MenuWrapper, er
 
 	// Redis SET
 	if data, err := json.Marshal(menuWrapperDB); err == nil {
-		s.redisClient.Set(context.Background(), key, string(data), consts.CACHE_TIME)
+		redisClient.Set(context.Background(), key, string(data), consts.CACHE_TIME)
 	}
 
-	// fmt.Println("Query from database at service - GetMenus()", menuWrapperDB)
+	// fmt.Println("Query from database at service - GetMenu()", menuWrapperDB)
 	fmt.Println("view menu from database")
 
 	return &menuWrapperDB, nil

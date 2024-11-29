@@ -6,75 +6,54 @@ import (
 	"food-delivery-service/producer"
 	"food-delivery-service/repositories"
 	"food-delivery-service/services"
+	"food-delivery-service/utils"
 
-	"github.com/IBM/sarama"
-	"github.com/go-redis/redis/v8"
 	"github.com/labstack/echo"
-	"gorm.io/driver/mysql"
-	"gorm.io/gorm"
 )
 
 func main() {
-	db := initDatabase()
+	utils.InitRestyClient()
+	utils.InitRedis()
+
+	db := utils.InitDatabase()
 	sqlDB, err := db.DB()
 	if err != nil {
 		fmt.Printf("Failed to get database object: %v\n", err)
 	}
 	defer sqlDB.Close()
 
-	kafkaProducer := initProducer()
+	kafkaProducer := utils.InitProducer()
 	defer kafkaProducer.Close()
 
-	redisClient := initRedis()
+	redisClient := utils.GetRedisClient()
 	defer redisClient.Close()
 
 	restaurantRepo := repositories.NewRestaurantRepositoryRedis(db)
-	restaurantService := services.NewRestaurantService(restaurantRepo, redisClient)
+	restaurantService := services.NewRestaurantService(restaurantRepo)
 	restaurantHandler := handlers.NewRestaurantHandler(restaurantService)
 
 	riderRepo := repositories.NewRiderRepositoryRedis(db)
-	riderService := services.NewRiderService(riderRepo, redisClient)
+	riderService := services.NewRiderService(riderRepo)
 	riderHandler := handlers.NewRiderHandler(riderService)
 
 	menuRepo := repositories.NewMenuRepositoryRedis(db)
-	menuService := services.NewMenuService(menuRepo, redisClient)
+	menuService := services.NewMenuService(menuRepo)
 	menuHandler := handlers.NewMenuHandler(menuService)
 
 	eventProducer := producer.NewEventProducer(kafkaProducer)
-	orderService := services.NewOrderService(eventProducer, restaurantService, menuService)
+	orderService := services.NewOrderService(eventProducer, restaurantRepo, menuRepo)
 	orderHandler := handlers.NewOrderHandler(orderService)
 
-	e := echo.New()
+	app := echo.New()
 
-	e.GET("/restaurant", restaurantHandler.GetRestaurants)
-	e.GET("/rider", riderHandler.GetRiders)
-	e.GET("/menu/:id", menuHandler.GetMenusByID)
-	e.POST("/order", orderHandler.PlaceOrder)
+	app.GET("/restaurant", restaurantHandler.GetRestaurants)
+	app.POST("/restaurant/order/accept", restaurantHandler.AcceptOrder)
 
-	e.Logger.Fatal(e.Start(":8000"))
-}
+	app.GET("/rider", riderHandler.GetRiders)
+	app.GET("/menu/:id", menuHandler.GetMenusByID)
+	app.POST("/order", orderHandler.PlaceOrder)
 
-func initProducer() sarama.SyncProducer {
-	producer, err := sarama.NewSyncProducer([]string{"localhost:9093"}, nil)
-	if err != nil {
-		panic(err)
-	}
-	return producer
-}
-
-func initDatabase() *gorm.DB {
-	dial := mysql.Open("root:P@ssw0rd@tcp(localhost:3306)/food-delivery")
-	db, err := gorm.Open(dial, &gorm.Config{})
-	if err != nil {
-		panic(err)
-	}
-	return db
-}
-
-func initRedis() *redis.Client {
-	return redis.NewClient(&redis.Options{
-		Addr: "localhost:6379",
-	})
+	app.Logger.Fatal(app.Start(":8000"))
 }
 
 // func (h *CustomerHandler) GetAllCustomer(c echo.Context) error {
